@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gelmar Smart Project Builder</title>
+<title>Gelmar Smart Builder</title>
 
 <style>
 body {
@@ -33,10 +33,10 @@ body {
 }
 
 .sub {
+    text-align:center;
     font-size:13px;
     color:gray;
     margin-bottom:15px;
-    text-align:center;
 }
 
 /* Inputs */
@@ -68,15 +68,7 @@ button.light {
     background:#607d8b;
 }
 
-/* Result */
-.result {
-    margin-top:20px;
-    padding:15px;
-    background:#f1f8e9;
-    border-radius:8px;
-}
-
-/* Grid */
+/* Cards */
 .grid {
     display:flex;
     gap:10px;
@@ -93,8 +85,16 @@ button.light {
 }
 
 .card img {
-    width:50px;
+    width:40px;
     margin-bottom:5px;
+}
+
+/* Result */
+.result {
+    margin-top:20px;
+    padding:15px;
+    background:#f1f8e9;
+    border-radius:8px;
 }
 
 .total {
@@ -103,6 +103,163 @@ button.light {
     margin-top:10px;
 }
 </style>
+</head>
+
+<body>
+
+<div class="header">GELMAR Smart Builder</div>
+
+<div class="container">
+
+<p class="sub">AI-powered project builder for fittings & hardware</p>
+
+<label>Project Type:</label>
+<select id="project">
+<option value="kitchen">Kitchen Cabinets</option>
+<option value="wardrobe">Wardrobes</option>
+<option value="door">Door Installation</option>
+</select>
+
+<label>Project Size:</label>
+<select id="complexity">
+<option value="basic">Basic</option>
+<option value="premium">Premium</option>
+<option value="contractor">Contractor</option>
+</select>
+
+<label>Quantity:</label>
+<input type="number" id="qty" value="10">
+
+<label>Select Store:</label>
+<select id="store">
+<option>Durban - Gateway</option>
+<option>Durban - Springfield</option>
+<option>Johannesburg - Sandton</option>
+</select>
+
+<label>
+<input type="checkbox" id="contractorMode"> Contractor Pricing (15% off)
+</label>
+
+<button onclick="generate()">Build My Project</button>
+
+<div id="output" class="result" style="display:none"></div>
+
+</div>
+
+<script>
+
+function generate(){
+
+let qty = parseInt(document.getElementById('qty').value);
+let project = document.getElementById('project').value;
+let complexity = document.getElementById('complexity').value;
+
+let handles=0, hinges=0, runners=0, extras=0;
+
+/* AI Logic (simulated intelligence) */
+
+if(project==="kitchen"){
+    handles = qty * 2;
+    hinges = qty * 3;
+    runners = qty;
+    extras = qty * 10;
+}
+else if(project==="wardrobe"){
+    handles = qty * 2;
+    hinges = qty * 2;
+    runners = 0;
+    extras = qty * 5;
+}
+else{
+    hinges = qty * 2;
+    handles = 0;
+    runners = 0;
+    extras = qty * 3;
+}
+
+/* Complexity adjustment */
+if(complexity==="premium"){
+    hinges *= 1.2;
+    runners *= 1.2;
+}
+if(complexity==="contractor"){
+    hinges *= 1.5;
+    runners *= 1.5;
+    extras *= 2;
+}
+
+let total = handles*25 + hinges*20 + runners*60 + extras;
+
+/* Contractor pricing */
+if(document.getElementById('contractorMode').checked){
+    total *= 0.85;
+}
+
+total = Math.round(total);
+
+document.getElementById('output').style.display = "block";
+
+document.getElementById('output').innerHTML = `
+<h3>Recommended Project Kit</h3>
+
+<div class="grid">
+
+<div class="card">
+<img src="https://img.icons8.com/ios-filled/50/door-handle.png">
+<p><b>${Math.round(handles)}</b></p>
+<p>Handles</p>
+</div>
+
+<div class="card">
+<img src="https://img.icons8.com/ios-filled/50/hinge.png">
+<p><b>${Math.round(hinges)}</b></p>
+<p>Hinges</p>
+</div>
+
+<div class="card">
+<img src="https://img.icons8.com/ios-filled/50/drawer.png">
+<p><b>${Math.round(runners)}</b></p>
+<p>Runners</p>
+</div>
+
+<div class="card">
+<img src="https://img.icons8.com/ios-filled/50/toolbox.png">
+<p><b>${Math.round(extras)}</b></p>
+<p>Accessories</p>
+</div>
+
+</div>
+
+<div class="total">Total: R${total}</div>
+
+<button onclick="orderNow(${total})">Buy Now</button>
+<button class="secondary" onclick="shareWhatsApp(${total})">Send to WhatsApp</button>
+<button class="light" onclick="generate()">Modify Project</button>
+`;
+
+}
+
+/* Order */
+function orderNow(total){
+alert("Order placed with Gelmar! Total: R" + total);
+}
+
+/* WhatsApp */
+function shareWhatsApp(total){
+let store = document.getElementById('store').value;
+
+let msg = encodeURIComponent(
+"Hi Gelmar, I want to order a project kit.\nStore: " + store + "\nTotal: R" + total
+);
+
+window.open("https://wa.me/?text=" + msg, "_blank");
+}
+
+</script>
+
+</body>
+</html></style>
 </head>
 
 <body>
