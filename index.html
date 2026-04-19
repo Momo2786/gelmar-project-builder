@@ -7,7 +7,7 @@
 
 <style>
 body {
-    font-family: Arial, sans-serif;
+    font-family: Arial;
     margin:0;
     background:#f4f6f9;
 }
@@ -21,7 +21,6 @@ body::before {
     font-size: 120px;
     color: rgba(211,47,47,0.05);
     transform: rotate(-30deg);
-    z-index: 0;
 }
 
 /* Header */
@@ -30,10 +29,7 @@ body::before {
     color:white;
     padding:15px;
     text-align:center;
-    font-size:20px;
     font-weight:bold;
-    position:relative;
-    z-index:1;
 }
 
 /* Container */
@@ -42,17 +38,7 @@ body::before {
     margin:20px auto;
     background:white;
     padding:20px;
-    border-radius:12px;
-    box-shadow:0 5px 20px rgba(0,0,0,0.1);
-    position:relative;
-    z-index:1;
-}
-
-.sub {
-    text-align:center;
-    font-size:13px;
-    color:gray;
-    margin-bottom:15px;
+    border-radius:10px;
 }
 
 /* Inputs */
@@ -60,8 +46,6 @@ select, input {
     width:100%;
     padding:10px;
     margin-top:10px;
-    border-radius:6px;
-    border:1px solid #ddd;
 }
 
 /* Buttons */
@@ -69,53 +53,30 @@ button {
     width:100%;
     padding:12px;
     margin-top:10px;
-    border:none;
-    border-radius:6px;
-    font-size:15px;
     background:#d32f2f;
     color:white;
+    border:none;
 }
-
-button.secondary { background:#4caf50; }
-button.light { background:#607d8b; }
 
 /* Result */
 .result {
     margin-top:20px;
     padding:15px;
     background:#f1f8e9;
-    border-radius:8px;
 }
 
-/* Grid */
 .grid {
     display:flex;
-    gap:10px;
     flex-wrap:wrap;
+    gap:10px;
 }
 
 .card {
     flex:1;
     background:white;
-    border-radius:8px;
     padding:10px;
     text-align:center;
-    box-shadow:0 2px 6px rgba(0,0,0,0.1);
-}
-
-.total {
-    font-size:22px;
-    font-weight:bold;
-    margin-top:10px;
-}
-
-/* AI box */
-.ai-box {
-    margin-top:15px;
-    padding:10px;
-    background:#fff3e0;
     border-radius:6px;
-    font-size:13px;
 }
 </style>
 </head>
@@ -126,24 +87,14 @@ button.light { background:#607d8b; }
 
 <div class="container">
 
-<p class="sub">AI-powered hardware project builder</p>
-
-<label>Project Type:</label>
+<label>Project:</label>
 <select id="project">
 <option value="kitchen">Kitchen Cabinets</option>
 <option value="wardrobe">Wardrobes</option>
-<option value="door">Door Installation</option>
-<option value="renovation">Full Renovation</option>
+<option value="door">Doors</option>
 </select>
 
-<label>Project Size:</label>
-<select id="complexity">
-<option value="basic">Basic</option>
-<option value="premium">Premium</option>
-<option value="contractor">Contractor</option>
-</select>
-
-<label>Quantity:</label>
+<label>Number of Units:</label>
 <input type="number" id="qty" value="10">
 
 <label>Select Store:</label>
@@ -154,10 +105,10 @@ button.light { background:#607d8b; }
 </select>
 
 <label>
-<input type="checkbox" id="contractorMode"> Contractor Pricing (15% off)
+<input type="checkbox" id="contractor"> Contractor Pricing
 </label>
 
-<button onclick="generate()">Build My Project</button>
+<button onclick="generate()">Build Project</button>
 
 <div id="output" class="result" style="display:none"></div>
 
@@ -167,18 +118,16 @@ button.light { background:#607d8b; }
 
 function generate(){
 
-let qty = parseInt(document.getElementById('qty').value);
-let project = document.getElementById('project').value;
-let complexity = document.getElementById('complexity').value;
+let qty = parseInt(document.getElementById("qty").value);
+let project = document.getElementById("project").value;
 
-let handles=0, hinges=0, runners=0, locks=0, screws=0;
-
-/* AI Logic */
+/* Accurate hardware logic */
+let handles=0, hinges=0, runners=0, screws=0, locks=0;
 
 if(project==="kitchen"){
     handles = qty * 2;
-    hinges = qty * 3;
-    runners = qty;
+    hinges = qty * 2; // standard cabinet
+    runners = qty * 1;
     screws = qty * 20;
 }
 else if(project==="wardrobe"){
@@ -186,93 +135,76 @@ else if(project==="wardrobe"){
     hinges = qty * 2;
     screws = qty * 15;
 }
-else if(project==="door"){
+else {
     hinges = qty * 2;
-    locks = qty;
+    locks = qty * 1;
     screws = qty * 10;
 }
-else{
-    handles = qty * 3;
-    hinges = qty * 4;
-    runners = qty * 2;
-    locks = qty;
-    screws = qty * 30;
-}
 
-/* Complexity adjustments */
-if(complexity==="premium"){
-    hinges *= 1.2;
-    runners *= 1.2;
-}
-if(complexity==="contractor"){
-    hinges *= 1.5;
-    screws *= 2;
-}
+/* Pricing based on Gelmar ranges */
+let total =
+(handles * 30) +
+(hinges * 15) +
+(runners * 80) +
+(locks * 120) +
+(screws * 1);
 
-/* Pricing */
-let baseTotal = handles*25 + hinges*20 + runners*60 + locks*80 + screws*1;
-let total = baseTotal;
+let baseTotal = total;
 
-if(document.getElementById('contractorMode').checked){
+/* Contractor discount */
+if(document.getElementById("contractor").checked){
     total *= 0.85;
 }
 
 total = Math.round(total);
 
-/* AI Message */
-let aiMsg = "Optimized bundle based on typical Gelmar installations and usage patterns.";
+/* Output */
+document.getElementById("output").style.display = "block";
 
-/* Render */
-document.getElementById('output').style.display = "block";
-
-document.getElementById('output').innerHTML = `
-<h3>Project Summary</h3>
-<p><b>Type:</b> ${project}</p>
-<p><b>Units:</b> ${qty}</p>
-
-<h3>Recommended Kit</h3>
+document.getElementById("output").innerHTML = `
+<h3>Project Breakdown</h3>
 
 <div class="grid">
-<div class="card"><b>${Math.round(handles)}</b><br>Handles</div>
-<div class="card"><b>${Math.round(hinges)}</b><br>Hinges</div>
-<div class="card"><b>${Math.round(runners)}</b><br>Runners</div>
-<div class="card"><b>${Math.round(locks)}</b><br>Locks</div>
-<div class="card"><b>${Math.round(screws)}</b><br>Screws</div>
+<div class="card">${handles}<br>Handles</div>
+<div class="card">${hinges}<br>Hinges</div>
+<div class="card">${runners}<br>Runners</div>
+<div class="card">${locks}<br>Locks</div>
+<div class="card">${screws}<br>Screws</div>
 </div>
 
-<div class="total">Total: R${total}</div>
+<h2>Total: R${total}</h2>
 
-${document.getElementById('contractorMode').checked ? 
-`<p style="color:green;">You saved R${Math.round(baseTotal-total)}</p>` : ""}
+${document.getElementById("contractor").checked ?
+"<p style='color:green'>Savings: R" + (baseTotal-total).toFixed(0) + "</p>" : ""}
 
-<div class="ai-box">
-<b>AI Recommendation:</b><br>
-${aiMsg}
-</div>
-
-<h4>Recommended Add-Ons</h4>
-<p>✔ Drill Kit (+R120)</p>
-<p>✔ Adhesive Pack (+R80)</p>
-<p>✔ Installation Service (+R350)</p>
+<h4>AI Insight</h4>
+<p>This configuration is calculated based on standard cabinet hardware requirements per unit.</p>
 
 <button onclick="orderNow(${total})">Buy Now</button>
-<button class="secondary" onclick="shareWhatsApp(${total})">Send to WhatsApp</button>
-<button class="light" onclick="generate()">Modify Project</button>
+<button onclick="shareWhatsApp(${total})">Send to WhatsApp</button>
+<button onclick="resetForm()">Modify Project</button>
 `;
 }
 
-function orderNow(total){
-alert("Order placed with Gelmar! Total: R" + total);
+/* FIXED MODIFY BUTTON */
+function resetForm(){
+document.getElementById("output").style.display = "none";
 }
 
+/* Order */
+function orderNow(total){
+alert("Order placed. Total: R" + total);
+}
+
+/* WhatsApp */
 function shareWhatsApp(total){
-let store = document.getElementById('store').value;
+let store = document.getElementById("store").value;
 
 let msg = encodeURIComponent(
 "Hi Gelmar, I want to order a project kit.\nStore: " + store + "\nTotal: R" + total
 );
 
-window.open("https://wa.me/?text=" + msg, "_blank");
+window.open("https://wa.me/?text=" + msg);
 }
 
 </script>
