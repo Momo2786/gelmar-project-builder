@@ -12,6 +12,18 @@ body {
     background:#f4f6f9;
 }
 
+/* Background watermark */
+body::before {
+    content: "GELMAR";
+    position: fixed;
+    top: 30%;
+    left: 10%;
+    font-size: 120px;
+    color: rgba(211,47,47,0.05);
+    transform: rotate(-30deg);
+    z-index: 0;
+}
+
 /* Header */
 .header {
     background:#d32f2f;
@@ -20,6 +32,8 @@ body {
     text-align:center;
     font-size:20px;
     font-weight:bold;
+    position:relative;
+    z-index:1;
 }
 
 /* Container */
@@ -28,8 +42,10 @@ body {
     margin:20px auto;
     background:white;
     padding:20px;
-    border-radius:10px;
+    border-radius:12px;
     box-shadow:0 5px 20px rgba(0,0,0,0.1);
+    position:relative;
+    z-index:1;
 }
 
 .sub {
@@ -110,13 +126,14 @@ button.light { background:#607d8b; }
 
 <div class="container">
 
-<p class="sub">AI-powered project builder for fittings & hardware</p>
+<p class="sub">AI-powered hardware project builder</p>
 
 <label>Project Type:</label>
 <select id="project">
 <option value="kitchen">Kitchen Cabinets</option>
 <option value="wardrobe">Wardrobes</option>
 <option value="door">Door Installation</option>
+<option value="renovation">Full Renovation</option>
 </select>
 
 <label>Project Size:</label>
@@ -154,37 +171,46 @@ let qty = parseInt(document.getElementById('qty').value);
 let project = document.getElementById('project').value;
 let complexity = document.getElementById('complexity').value;
 
-let handles=0, hinges=0, runners=0, extras=0;
+let handles=0, hinges=0, runners=0, locks=0, screws=0;
 
 /* AI Logic */
+
 if(project==="kitchen"){
     handles = qty * 2;
     hinges = qty * 3;
     runners = qty;
-    extras = qty * 12;
+    screws = qty * 20;
 }
 else if(project==="wardrobe"){
     handles = qty * 2;
     hinges = qty * 2;
-    extras = qty * 6;
+    screws = qty * 15;
+}
+else if(project==="door"){
+    hinges = qty * 2;
+    locks = qty;
+    screws = qty * 10;
 }
 else{
-    hinges = qty * 2;
-    extras = qty * 4;
+    handles = qty * 3;
+    hinges = qty * 4;
+    runners = qty * 2;
+    locks = qty;
+    screws = qty * 30;
 }
 
-/* Complexity */
+/* Complexity adjustments */
 if(complexity==="premium"){
     hinges *= 1.2;
     runners *= 1.2;
 }
 if(complexity==="contractor"){
     hinges *= 1.5;
-    extras *= 2;
+    screws *= 2;
 }
 
 /* Pricing */
-let baseTotal = handles*25 + hinges*20 + runners*60 + extras;
+let baseTotal = handles*25 + hinges*20 + runners*60 + locks*80 + screws*1;
 let total = baseTotal;
 
 if(document.getElementById('contractorMode').checked){
@@ -194,8 +220,9 @@ if(document.getElementById('contractorMode').checked){
 total = Math.round(total);
 
 /* AI Message */
-let aiMsg = "Recommended based on project type, quantity, and usage patterns.";
+let aiMsg = "Optimized bundle based on typical Gelmar installations and usage patterns.";
 
+/* Render */
 document.getElementById('output').style.display = "block";
 
 document.getElementById('output').innerHTML = `
@@ -209,20 +236,21 @@ document.getElementById('output').innerHTML = `
 <div class="card"><b>${Math.round(handles)}</b><br>Handles</div>
 <div class="card"><b>${Math.round(hinges)}</b><br>Hinges</div>
 <div class="card"><b>${Math.round(runners)}</b><br>Runners</div>
-<div class="card"><b>${Math.round(extras)}</b><br>Accessories</div>
+<div class="card"><b>${Math.round(locks)}</b><br>Locks</div>
+<div class="card"><b>${Math.round(screws)}</b><br>Screws</div>
 </div>
 
 <div class="total">Total: R${total}</div>
 
 ${document.getElementById('contractorMode').checked ? 
-`<p style="color:green;">You saved R${Math.round(baseTotal-total)} with contractor pricing</p>` : ""}
+`<p style="color:green;">You saved R${Math.round(baseTotal-total)}</p>` : ""}
 
 <div class="ai-box">
 <b>AI Recommendation:</b><br>
 ${aiMsg}
 </div>
 
-<h4>Add-On Bundles</h4>
+<h4>Recommended Add-Ons</h4>
 <p>✔ Drill Kit (+R120)</p>
 <p>✔ Adhesive Pack (+R80)</p>
 <p>✔ Installation Service (+R350)</p>
@@ -231,7 +259,6 @@ ${aiMsg}
 <button class="secondary" onclick="shareWhatsApp(${total})">Send to WhatsApp</button>
 <button class="light" onclick="generate()">Modify Project</button>
 `;
-
 }
 
 function orderNow(total){
