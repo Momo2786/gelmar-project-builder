@@ -12,18 +12,6 @@ body {
     background:#f4f6f9;
 }
 
-/* Background watermark */
-body::before {
-    content: "GELMAR";
-    position: fixed;
-    top: 30%;
-    left: 10%;
-    font-size: 120px;
-    color: rgba(211,47,47,0.05);
-    transform: rotate(-30deg);
-}
-
-/* Header */
 .header {
     background:#d32f2f;
     color:white;
@@ -32,7 +20,6 @@ body::before {
     font-weight:bold;
 }
 
-/* Container */
 .container {
     max-width:500px;
     margin:20px auto;
@@ -41,14 +28,12 @@ body::before {
     border-radius:10px;
 }
 
-/* Inputs */
 select, input {
     width:100%;
     padding:10px;
     margin-top:10px;
 }
 
-/* Buttons */
 button {
     width:100%;
     padding:12px;
@@ -58,7 +43,6 @@ button {
     border:none;
 }
 
-/* Result */
 .result {
     margin-top:20px;
     padding:15px;
@@ -87,15 +71,30 @@ button {
 
 <div class="container">
 
-<label>Project:</label>
-<select id="project">
-<option value="kitchen">Kitchen Cabinets</option>
-<option value="wardrobe">Wardrobes</option>
-<option value="door">Doors</option>
+<label>Project Mode:</label>
+<select id="mode" onchange="toggleMode()">
+<option value="standard">Standard Units</option>
+<option value="custom">Custom Design</option>
 </select>
 
-<label>Number of Units:</label>
+<div id="standardMode">
+<label>Units:</label>
 <input type="number" id="qty" value="10">
+</div>
+
+<div id="customMode" style="display:none">
+<label>Width (mm):</label>
+<input type="number" id="width" value="2000">
+
+<label>Height (mm):</label>
+<input type="number" id="height" value="2000">
+
+<label>Number of Shelves:</label>
+<input type="number" id="shelves" value="3">
+
+<label>Number of Drawers:</label>
+<input type="number" id="drawers" value="2">
+</div>
 
 <label>Select Store:</label>
 <select id="store">
@@ -116,44 +115,66 @@ button {
 
 <script>
 
+function toggleMode(){
+let mode = document.getElementById("mode").value;
+document.getElementById("standardMode").style.display = mode==="standard" ? "block":"none";
+document.getElementById("customMode").style.display = mode==="custom" ? "block":"none";
+}
+
 function generate(){
 
+let handles=0, hinges=0, runners=0, screws=0, doors=0;
+
+let mode = document.getElementById("mode").value;
+
+/* STANDARD MODE */
+if(mode==="standard"){
 let qty = parseInt(document.getElementById("qty").value);
-let project = document.getElementById("project").value;
 
-/* Accurate hardware logic */
-let handles=0, hinges=0, runners=0, screws=0, locks=0;
-
-if(project==="kitchen"){
-    handles = qty * 2;
-    hinges = qty * 2; // standard cabinet
-    runners = qty * 1;
-    screws = qty * 20;
-}
-else if(project==="wardrobe"){
-    handles = qty * 2;
-    hinges = qty * 2;
-    screws = qty * 15;
-}
-else {
-    hinges = qty * 2;
-    locks = qty * 1;
-    screws = qty * 10;
+handles = qty * 2;
+hinges = qty * 2;
+runners = qty * 1;
+screws = qty * 20;
+doors = qty;
 }
 
-/* Pricing based on Gelmar ranges */
+/* CUSTOM MODE (SMART LOGIC) */
+else{
+
+let width = parseInt(document.getElementById("width").value);
+let height = parseInt(document.getElementById("height").value);
+let shelves = parseInt(document.getElementById("shelves").value);
+let drawers = parseInt(document.getElementById("drawers").value);
+
+/* Estimate doors based on width */
+doors = Math.ceil(width / 600);
+
+/* Hinges logic */
+hinges = doors * (height > 1800 ? 3 : 2);
+
+/* Handles */
+handles = doors + drawers;
+
+/* Runners */
+runners = drawers;
+
+/* Screws */
+screws = (hinges * 4) + (handles * 2) + (runners * 6) + (shelves * 8);
+
+}
+
+/* Pricing */
 let total =
 (handles * 30) +
 (hinges * 15) +
 (runners * 80) +
-(locks * 120) +
 (screws * 1);
 
 let baseTotal = total;
 
 /* Contractor discount */
 if(document.getElementById("contractor").checked){
-    total *= 0.85;
+total *= 0.85;
 }
 
 total = Math.round(total);
@@ -165,10 +186,10 @@ document.getElementById("output").innerHTML = `
 <h3>Project Breakdown</h3>
 
 <div class="grid">
+<div class="card">${doors}<br>Doors</div>
 <div class="card">${handles}<br>Handles</div>
 <div class="card">${hinges}<br>Hinges</div>
 <div class="card">${runners}<br>Runners</div>
-<div class="card">${locks}<br>Locks</div>
 <div class="card">${screws}<br>Screws</div>
 </div>
 
@@ -178,7 +199,7 @@ ${document.getElementById("contractor").checked ?
 "<p style='color:green'>Savings: R" + (baseTotal-total).toFixed(0) + "</p>" : ""}
 
 <h4>AI Insight</h4>
-<p>This configuration is calculated based on standard cabinet hardware requirements per unit.</p>
+<p>Calculated based on cabinet width, height, shelves, and drawer configuration.</p>
 
 <button onclick="orderNow(${total})">Buy Now</button>
 <button onclick="shareWhatsApp(${total})">Send to WhatsApp</button>
@@ -186,7 +207,7 @@ ${document.getElementById("contractor").checked ?
 `;
 }
 
-/* FIXED MODIFY BUTTON */
+/* Reset */
 function resetForm(){
 document.getElementById("output").style.display = "none";
 }
@@ -201,7 +222,7 @@ function shareWhatsApp(total){
 let store = document.getElementById("store").value;
 
 let msg = encodeURIComponent(
-"Hi Gelmar, I want to order a project kit.\nStore: " + store + "\nTotal: R" + total
+"Hi Gelmar, I want to order a custom project.\nStore: " + store + "\nTotal: R" + total
 );
 
 window.open("https://wa.me/?text=" + msg);
