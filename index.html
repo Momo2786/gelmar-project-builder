@@ -7,29 +7,45 @@
 
 <style>
 body {
-    font-family: Arial;
+    font-family: Arial, sans-serif;
     padding: 20px;
-    background: #f5f5f5;
+    background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
 }
 
+/* Main container */
 .container {
     max-width: 500px;
     margin: auto;
     background: white;
     padding: 20px;
-    border-radius: 10px;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
 }
 
-h2 {
+/* Header */
+.logo {
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+    color: #d32f2f;
     margin-bottom: 5px;
 }
 
-p.sub {
-    font-size: 14px;
+.sub {
+    text-align: center;
+    font-size: 13px;
     color: gray;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
+/* Inputs */
+select, input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+}
+
+/* Buttons */
 button {
     padding: 12px;
     margin-top: 10px;
@@ -37,29 +53,36 @@ button {
     font-size: 16px;
     border: none;
     border-radius: 6px;
-    background: #007bff;
+    background: #d32f2f;
     color: white;
 }
 
 button:hover {
-    background: #0056b3;
+    background: #b71c1c;
 }
 
-select, input {
-    width: 100%;
-    padding: 10px;
-    margin-top: 10px;
-}
-
+/* Result box */
 .result {
     margin-top: 20px;
-    background: #e8f5e9;
+    background: #f1f8e9;
     padding: 15px;
     border-radius: 8px;
 }
 
-hr {
-    margin: 15px 0;
+/* Product cards */
+.grid {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.card {
+    flex: 1;
+    background: white;
+    padding: 10px;
+    border-radius: 6px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 </style>
 </head>
@@ -67,8 +90,9 @@ hr {
 <body>
 
 <div class="container">
-<h2>Gelmar Instant Project Quote</h2>
-<p class="sub">Build your full project in seconds</p>
+
+<div class="logo">GELMAR</div>
+<div class="sub">Instant Project Builder</div>
 
 <label>Select Project:</label>
 <select id="project">
@@ -79,6 +103,13 @@ hr {
 
 <label>Quantity:</label>
 <input type="number" id="qty" value="10" />
+
+<label>Select Store:</label>
+<select id="store">
+<option>Durban - Gateway</option>
+<option>Durban - Springfield</option>
+<option>Johannesburg - Sandton</option>
+</select>
 
 <label>
 <input type="checkbox" id="contractor"> Contractor Mode (15% discount)
@@ -103,6 +134,59 @@ let total = handles*20 + hinges*15 + runners*50;
 
 // Contractor discount
 let contractor = document.getElementById('contractor').checked;
+if(contractor){
+    total = total * 0.85;
+}
+
+document.getElementById('output').style.display = 'block';
+
+document.getElementById('output').innerHTML = `
+<h3>Your Project Kit ✅</h3>
+
+<div class="grid">
+
+<div class="card">
+<p><b>${handles}</b></p>
+<p>Handles</p>
+</div>
+
+<div class="card">
+<p><b>${hinges}</b></p>
+<p>Hinges</p>
+</div>
+
+<div class="card">
+<p><b>${runners}</b></p>
+<p>Runners</p>
+</div>
+
+</div>
+
+<hr>
+
+<h2>Total: R${Math.round(total)}</h2>
+
+<button onclick="alert('Order sent to store!')">Buy Now</button>
+<button onclick="shareWhatsApp(${Math.round(total)})">Send to WhatsApp</button>
+<button onclick="generate()">Repeat Last Order</button>
+`;
+
+}
+
+// WhatsApp
+function shareWhatsApp(total){
+let store = document.getElementById('store').value;
+
+let msg = encodeURIComponent(
+"Hi, I want to order my Gelmar project kit.\nStore: " + store + "\nTotal: R" + total
+);
+
+window.open("https://wa.me/?text=" + msg, "_blank");
+}
+</script>
+
+</body>
+</html>let contractor = document.getElementById('contractor').checked;
 if(contractor){
     total = total * 0.85;
 }
