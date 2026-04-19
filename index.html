@@ -3,106 +3,125 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gelmar Instant Project Quote</title>
+<title>Gelmar Smart Project Builder</title>
 
 <style>
 body {
     font-family: Arial, sans-serif;
-    padding: 20px;
-    background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
-}
-
-/* Main container */
-.container {
-    max-width: 500px;
-    margin: auto;
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    margin:0;
+    background:#f4f6f9;
 }
 
 /* Header */
-.logo {
-    text-align: center;
-    font-size: 22px;
-    font-weight: bold;
-    color: #d32f2f;
-    margin-bottom: 5px;
+.header {
+    background:#d32f2f;
+    color:white;
+    padding:15px;
+    text-align:center;
+    font-size:20px;
+    font-weight:bold;
+}
+
+/* Container */
+.container {
+    max-width:500px;
+    margin:20px auto;
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 5px 20px rgba(0,0,0,0.1);
 }
 
 .sub {
-    text-align: center;
-    font-size: 13px;
-    color: gray;
-    margin-bottom: 20px;
+    font-size:13px;
+    color:gray;
+    margin-bottom:15px;
+    text-align:center;
 }
 
 /* Inputs */
 select, input {
-    width: 100%;
-    padding: 10px;
-    margin-top: 10px;
+    width:100%;
+    padding:10px;
+    margin-top:10px;
+    border-radius:6px;
+    border:1px solid #ddd;
 }
 
 /* Buttons */
 button {
-    padding: 12px;
-    margin-top: 10px;
-    width: 100%;
-    font-size: 16px;
-    border: none;
-    border-radius: 6px;
-    background: #d32f2f;
-    color: white;
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    border:none;
+    border-radius:6px;
+    font-size:15px;
+    background:#d32f2f;
+    color:white;
 }
 
-button:hover {
-    background: #b71c1c;
+button.secondary {
+    background:#4caf50;
 }
 
-/* Result box */
+button.light {
+    background:#607d8b;
+}
+
+/* Result */
 .result {
-    margin-top: 20px;
-    background: #f1f8e9;
-    padding: 15px;
-    border-radius: 8px;
+    margin-top:20px;
+    padding:15px;
+    background:#f1f8e9;
+    border-radius:8px;
 }
 
-/* Product cards */
+/* Grid */
 .grid {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
 }
 
 .card {
-    flex: 1;
-    background: white;
-    padding: 10px;
-    border-radius: 6px;
-    text-align: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    flex:1;
+    background:white;
+    border-radius:8px;
+    padding:10px;
+    text-align:center;
+    box-shadow:0 2px 6px rgba(0,0,0,0.1);
+}
+
+.card img {
+    width:50px;
+    margin-bottom:5px;
+}
+
+.total {
+    font-size:22px;
+    font-weight:bold;
+    margin-top:10px;
 }
 </style>
 </head>
 
 <body>
 
+<div class="header">GELMAR Smart Builder</div>
+
 <div class="container">
 
-<div class="logo">GELMAR</div>
-<div class="sub">Instant Project Builder</div>
+<p class="sub">Build full hardware projects instantly</p>
 
-<label>Select Project:</label>
+<label>Project Type:</label>
 <select id="project">
-<option>Kitchen Cabinets</option>
-<option>Wardrobes</option>
-<option>Door Installation</option>
+<option value="kitchen">Kitchen Cabinets</option>
+<option value="wardrobe">Wardrobes</option>
+<option value="door">Door Installation</option>
 </select>
 
 <label>Quantity:</label>
-<input type="number" id="qty" value="10" />
+<input type="number" id="qty" value="10">
 
 <label>Select Store:</label>
 <select id="store">
@@ -115,62 +134,86 @@ button:hover {
 <input type="checkbox" id="contractor"> Contractor Mode (15% discount)
 </label>
 
-<button onclick="generate()">Generate Quote</button>
+<button onclick="generate()">Generate Project</button>
 
 <div id="output" class="result" style="display:none"></div>
 
 </div>
 
 <script>
+
 function generate(){
 
-let qty = document.getElementById('qty').value;
+let qty = parseInt(document.getElementById('qty').value);
+let project = document.getElementById('project').value;
 
-let handles = qty * 2;
-let hinges = qty * 3;
-let runners = qty * 1;
+let handles, hinges, runners;
+
+// Different logic per project
+if(project === "kitchen"){
+    handles = qty * 2;
+    hinges = qty * 3;
+    runners = qty * 1;
+}
+else if(project === "wardrobe"){
+    handles = qty * 2;
+    hinges = qty * 2;
+    runners = 0;
+}
+else {
+    handles = 0;
+    hinges = qty * 2;
+    runners = 0;
+}
 
 let total = handles*20 + hinges*15 + runners*50;
 
-// Contractor discount
-let contractor = document.getElementById('contractor').checked;
-if(contractor){
-    total = total * 0.85;
+// Contractor pricing
+if(document.getElementById('contractor').checked){
+    total *= 0.85;
 }
 
-document.getElementById('output').style.display = 'block';
+total = Math.round(total);
+
+document.getElementById('output').style.display = "block";
 
 document.getElementById('output').innerHTML = `
-<h3>Your Project Kit ✅</h3>
+<h3>Your Project Kit</h3>
 
 <div class="grid">
 
 <div class="card">
+<img src="https://img.icons8.com/ios-filled/50/door-handle.png">
 <p><b>${handles}</b></p>
 <p>Handles</p>
 </div>
 
 <div class="card">
+<img src="https://img.icons8.com/ios-filled/50/hinge.png">
 <p><b>${hinges}</b></p>
 <p>Hinges</p>
 </div>
 
 <div class="card">
+<img src="https://img.icons8.com/ios-filled/50/drawer.png">
 <p><b>${runners}</b></p>
 <p>Runners</p>
 </div>
 
 </div>
 
-<hr>
+<div class="total">Total: R${total}</div>
 
-<h2>Total: R${Math.round(total)}</h2>
-
-<button onclick="alert('Order sent to store!')">Buy Now</button>
-<button onclick="shareWhatsApp(${Math.round(total)})">Send to WhatsApp</button>
-<button onclick="generate()">Repeat Last Order</button>
+<button onclick="orderNow(${total})">Buy Now</button>
+<button class="secondary" onclick="shareWhatsApp(${total})">Send to WhatsApp</button>
+<button class="light" onclick="generate()">Repeat Order</button>
 `;
 
+}
+
+// Order simulation
+function orderNow(total){
+alert("Order placed! Total: R" + total);
 }
 
 // WhatsApp
@@ -178,43 +221,12 @@ function shareWhatsApp(total){
 let store = document.getElementById('store').value;
 
 let msg = encodeURIComponent(
-"Hi, I want to order my Gelmar project kit.\nStore: " + store + "\nTotal: R" + total
+"Hi, I want to order a Gelmar project kit.\nStore: " + store + "\nTotal: R" + total
 );
 
 window.open("https://wa.me/?text=" + msg, "_blank");
 }
-</script>
 
-</body>
-</html>let contractor = document.getElementById('contractor').checked;
-if(contractor){
-    total = total * 0.85;
-}
-
-document.getElementById('output').style.display = 'block';
-
-document.getElementById('output').innerHTML = `
-<h3>Your Project Kit ✅</h3>
-
-<p><b>${handles}</b> Cabinet Handles</p>
-<p><b>${hinges}</b> Hinges (Soft Close)</p>
-<p><b>${runners}</b> Drawer Runners</p>
-
-<hr>
-
-<h2>Total: R${Math.round(total)}</h2>
-
-<button onclick="alert('Order sent to store!')">Buy Now</button>
-<button onclick="shareWhatsApp(${Math.round(total)})">Send to WhatsApp</button>
-`;
-
-}
-
-// WhatsApp function
-function shareWhatsApp(total){
-let msg = encodeURIComponent("Hi, I want to order my Gelmar project kit. Total: R" + total);
-window.open("https://wa.me/?text=" + msg, "_blank");
-}
 </script>
 
 </body>
